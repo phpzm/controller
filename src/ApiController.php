@@ -5,7 +5,7 @@ namespace Simples\Controller;
 use Simples\Data\Record;
 use Simples\Http\Controller;
 use Simples\Http\Response;
-use Simples\Model\Field;
+use Simples\Persistence\Field;
 use Simples\Model\Repository\ModelRepository;
 
 /**
