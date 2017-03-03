@@ -1,0 +1,37 @@
+{
+  "name": "phpzm/controller",
+  "description": "Simples Controller package",
+  "minimum-stability": "dev",
+  "keywords": [
+    "php",
+    "framework",
+    "api",
+    "simples"
+  ],
+  "homepage": "https://github.com/phpzm/controller",
+  "license": "MIT",
+  "version": "1.0.0",
+  "type": "package",
+  "authors": [
+    {
+      "name": "William",
+      "email": "wilcorrea@gmail.com"
+    },
+    {
+      "name": "Ezio",
+      "email": "ezioadsr@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "phpzm/data": "dev-master",
+    "phpzm/http": "dev-master",
+    "phpzm/model": "dev-master",
+    "phpzm/template": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Simples\\Controller\\": "src/"
+    }
+  }
+}
