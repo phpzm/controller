@@ -5,8 +5,10 @@ namespace Simples\Controller;
 use Simples\Data\Record;
 use Simples\Http\Controller;
 use Simples\Http\Response;
-use Simples\Persistence\Field;
+use Simples\Kernel\App;
 use Simples\Model\Repository\ModelRepository;
+use Simples\Persistence\Field;
+use Simples\Persistence\Filter;
 
 /**
  * Class ApiController
@@ -39,16 +41,7 @@ abstract class ApiController extends Controller
     {
         $this->setLog($this->request()->get('log'));
 
-        $fields = $this->repository->getFields();
-
-        $data = [];
-        foreach ($fields as $name => $field) {
-            /** @var Field $field */
-            $value = $this->input($name, $field->getType());
-            if (!is_null($value)) {
-                $data[$name] = $value;
-            }
-        }
+        $data = $this->getData();
 
         $posted = $this->repository->create(Record::make($data));
 
@@ -56,37 +49,50 @@ abstract class ApiController extends Controller
     }
 
     /**
-     * @param $id
      * @return Response
      */
-    public function get($id = null): Response
+    public function search()
     {
         $this->setLog($this->request()->get('log'));
 
-        $start = null;
-        $end = null;
-        $data = [$this->repository->getHashKey() => $id];
-        if (!$id) {
-            $data = [];
-            $page = (int)of($this->request()->get('page'), 1);
-            $size = (int)of($this->request()->get('size'), 25);
-            $start = ($page - 1) * $size;
-            $end = $size;
-            $fields = $this->repository->getFields();
+        $page = (int)coalesce($this->request()->get('page'), 1);
+        $size = (int)coalesce($this->request()->get('size'), 25);
+        $start = ($page - 1) * $size;
+        $end = $size;
+        $order = $this->request()->get('order');
+        if ($order && !is_array($order)) {
+            $order = explode(',', $order);
+        }
+        $data = $this->getWithAND();
+        $fast = $this->getWithOR($this->request()->get('fast'));
 
-            /** @var Field $field */
-            foreach ($fields as $name => $field) {
-                $value = $this->input($name, $field->getType());
-                if (!is_null($value)) {
-                    $data[$name] = $value;
-                }
-            }
+        $record = [[$data], __AND__, [$fast]];
+        stop($record);
+        $collection = $this->repository->search($record, $order, $start, $end);
+        $meta = ['total' => $this->repository->count($data)];
+
+        if ($collection->size()) {
+            return $this->answerOK($collection->getRecords(), $meta);
+        }
+        return $this->answerNoContent([], $meta);
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     */
+    public function get($id): Response
+    {
+        $this->setLog($this->request()->get('log'));
+
+        $data = [$this->repository->getHashKey() => $id];
+
+        $collection = $this->repository->read(Record::make($data));
+        if ($id && $collection->size() === 0) {
+            return $this->answerGone("The resource `{$id}` was not found");
         }
 
-        $collection = $this->repository->read(Record::make($data), $start, $end);
-        $count = $this->repository->count($data);
-
-        return $this->answerOK($collection->getRecords(), (isset($page)) ? ['total' => $count] : []);
+        return $this->answerOK($collection->getRecords());
     }
 
     /**
@@ -97,18 +103,8 @@ abstract class ApiController extends Controller
     {
         $this->setLog($this->request()->get('log'));
 
-        $fields = $this->repository->getFields();
-
-        $data = [
-            $this->repository->getHashKey() => $id
-        ];
-        foreach ($fields as $name => $field) {
-            /** @var Field $field */
-            $value = $this->input($name, $field->getType());
-            if (!is_null($value)) {
-                $data[$name] = $value;
-            }
-        }
+        $data = $this->getData();
+        $data[$this->repository->getHashKey()] = $id;
 
         $putted = $this->repository->update(Record::make($data));
 
@@ -130,5 +126,83 @@ abstract class ApiController extends Controller
         $deleted = $this->repository->destroy(Record::make($data));
 
         return $this->answerOK($deleted->all());
+    }
+
+    /**
+     * @return array
+     */
+    private function getData(): array
+    {
+        $fields = $this->repository->getFields();
+
+        $data = [];
+        /** @var Field $field */
+        foreach ($fields as $name => $field) {
+            $value = $this->input($name, $field->getType());
+            if (!is_null($value)) {
+                $data[$name] = $value;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    private function getWithAND(): array
+    {
+        $fields = $this->repository->getFields();
+
+        $data = [];
+        /** @var Field $field */
+        foreach ($fields as $name => $field) {
+            $value = $this->input($name, $field->getType());
+            if (!is_null($value)) {
+                $data[$name] = $value;
+                $data[] = __AND__;
+            }
+        }
+        if (count($data)) {
+            array_pop($data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $string
+     * @return array
+     */
+    private function getWithOR($string): array
+    {
+        $peaces = explode(App::options('filter'), $string);
+        if (!isset($peaces[1])) {
+            return [];
+        }
+        $fields = $this->repository->getFields();
+        $data = [];
+        $term = $peaces[0];
+        $filters = explode('+', $peaces[1]);
+        foreach ($filters as $filter) {
+            if (!isset($fields[$filter])) {
+                continue;
+            }
+            /** @var Field $field */
+            $field = $fields[$filter];
+            switch ($field->getType()) {
+                case Field::TYPE_STRING:
+                case Field::TYPE_TEXT:
+                    $data[$filter] = Filter::apply(Filter::RULE_NEAR, $term);
+                    break;
+                default:
+                    $data[$filter] = $term;
+            }
+            $data[] = __OR__;
+        }
+        if (count($data)) {
+            array_pop($data);
+        }
+
+        return $data;
     }
 }
