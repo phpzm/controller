@@ -24,10 +24,10 @@
   ],
   "require": {
     "php": ">=7.0",
-    "phpzm/data": "dev-master",
-    "phpzm/http": "dev-master",
-    "phpzm/model": "dev-master",
-    "phpzm/template": "dev-master"
+    "phpzm/data": ">=1.0.3",
+    "phpzm/http": ">=1.0.5",
+    "phpzm/model": ">=1.0.3",
+    "phpzm/template": ">=1.0.2"
   },
   "autoload": {
     "psr-4": {
