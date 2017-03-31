@@ -63,18 +63,23 @@ abstract class ApiController extends Controller
         if ($order && !is_array($order)) {
             $order = explode(',', $order);
         }
-        $data = $this->getData();
-        $fast = $this->fast($this->request()->get('fast'));
-
         $filter = [];
-        $filter[] = [
-            'separator' => __AND__,
-            'filter' => $data
-        ];
-        $filter[] = [
-            'separator' => __OR__,
-            'filter' => $fast
-        ];
+
+        $data = $this->getData();
+        if (count($data)) {
+            $filter[] = [
+                'separator' => __AND__,
+                'filter' => $data
+            ];
+        }
+
+        $fast = $this->fast($this->request()->get('fast'));
+        if (count($fast)) {
+            $filter[] = [
+                'separator' => __OR__,
+                'filter' => $fast
+            ];
+        }
 
         $collection = $this->repository->search($filter, $order, $start, $end);
         $meta = ['total' => $this->repository->count($data)];
