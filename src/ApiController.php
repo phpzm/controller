@@ -63,12 +63,20 @@ abstract class ApiController extends Controller
         if ($order && !is_array($order)) {
             $order = explode(',', $order);
         }
-        $data = $this->getWithAND();
-        $fast = $this->getWithOR($this->request()->get('fast'));
+        $data = $this->getData();
+        $fast = $this->fast($this->request()->get('fast'));
 
-        $record = [[$data], __AND__, [$fast]];
-        stop($record);
-        $collection = $this->repository->search($record, $order, $start, $end);
+        $filter = [];
+        $filter[] = [
+            'separator' => __AND__,
+            'filter' => $data
+        ];
+        $filter[] = [
+            'separator' => __OR__,
+            'filter' => $fast
+        ];
+
+        $collection = $this->repository->search($filter, $order, $start, $end);
         $meta = ['total' => $this->repository->count($data)];
 
         if ($collection->size()) {
@@ -147,33 +155,10 @@ abstract class ApiController extends Controller
     }
 
     /**
-     * @return array
-     */
-    private function getWithAND(): array
-    {
-        $fields = $this->repository->getFields();
-
-        $data = [];
-        /** @var Field $field */
-        foreach ($fields as $name => $field) {
-            $value = $this->input($name, $field->getType());
-            if (!is_null($value)) {
-                $data[$name] = $value;
-                $data[] = __AND__;
-            }
-        }
-        if (count($data)) {
-            array_pop($data);
-        }
-
-        return $data;
-    }
-
-    /**
      * @param $string
      * @return array
      */
-    private function getWithOR($string): array
+    private function fast($string): array
     {
         $peaces = explode(App::options('filter'), $string);
         if (!isset($peaces[1])) {
@@ -197,10 +182,6 @@ abstract class ApiController extends Controller
                 default:
                     $data[$filter] = $term;
             }
-            $data[] = __OR__;
-        }
-        if (count($data)) {
-            array_pop($data);
         }
 
         return $data;
