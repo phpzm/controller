@@ -49,6 +49,12 @@ abstract class ApiController extends Controller
     }
 
     /**
+     * @get log
+     * @get page
+     * @get size
+     * @get order
+     * @get fast
+     * @get trash
      * @return Response
      */
     public function search()
@@ -67,27 +73,19 @@ abstract class ApiController extends Controller
 
         $data = $this->getData();
         if (count($data)) {
-            $filter[] = [
-                'separator' => __AND__,
-                'filter' => $data
-            ];
+            $filter[] = Filter::generate($data);
         }
 
         $fast = $this->fast($this->request()->get('fast'));
         if (count($fast)) {
-            $filter[] = [
-                'separator' => __OR__,
-                'filter' => $fast
-            ];
+            $filter[] = Filter::generate($fast, __OR__);
         }
+        $trash = !!$this->request()->get('trash');
 
-        $collection = $this->repository->search($filter, $order, $start, $end);
-        $meta = ['total' => $this->repository->count($data)];
+        $collection = $this->repository->search($filter, $order, $start, $end, $trash);
+        $meta = ['total' => $this->repository->count($filter)];
 
-        if ($collection->size()) {
-            return $this->answerOK($collection->getRecords(), $meta);
-        }
-        return $this->answerNoContent([], $meta);
+        return $this->answerOK($collection->getRecords(), $meta);
     }
 
     /**
@@ -99,8 +97,9 @@ abstract class ApiController extends Controller
         $this->setLog($this->request()->get('log'));
 
         $data = [$this->repository->getHashKey() => $id];
+        $trash = !!$this->request()->get('trash');
 
-        $collection = $this->repository->read(Record::make($data));
+        $collection = $this->repository->read(Record::make($data), $trash);
         if ($id && $collection->size() === 0) {
             return $this->answerGone("The resource `{$id}` was not found");
         }
@@ -182,7 +181,7 @@ abstract class ApiController extends Controller
             switch ($field->getType()) {
                 case Field::TYPE_STRING:
                 case Field::TYPE_TEXT:
-                    $data[$filter] = Filter::apply(Filter::RULE_NEAR, $term);
+                    $data[$filter] = Filter::apply(Filter::RULE_LIKE, $term);
                     break;
                 default:
                     $data[$filter] = $term;
