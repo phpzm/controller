@@ -143,7 +143,7 @@ abstract class ApiController extends Controller
     /**
      * @return array
      */
-    private function getData(): array
+    protected function getData(): array
     {
         $fields = $this->repository->getFields();
 
