@@ -99,7 +99,7 @@ abstract class ApiController extends Controller
         $data = [$this->repository->getHashKey() => $id];
         $trash = !!$this->request()->get('trash');
 
-        $collection = $this->repository->read(Record::make($data), $trash);
+        $collection = $this->repository->read(Record::make($data), null, $trash);
         if ($id && $collection->size() === 0) {
             return $this->answerGone("The resource `{$id}` was not found");
         }
@@ -138,6 +138,23 @@ abstract class ApiController extends Controller
         $deleted = $this->repository->destroy(Record::make($data));
 
         return $this->answerOK($deleted->all());
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     */
+    public function recycle($id): Response
+    {
+        $this->setLog($this->request()->get('log'));
+
+        $data = [
+            $this->repository->getHashKey() => $id
+        ];
+
+        $recycled = $this->repository->recycle(Record::make($data));
+
+        return $this->answerOK($recycled->all());
     }
 
     /**
