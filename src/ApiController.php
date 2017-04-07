@@ -193,18 +193,26 @@ abstract class ApiController extends Controller
             if (!isset($fields[$filter])) {
                 continue;
             }
-            /** @var Field $field */
-            $field = $fields[$filter];
-            switch ($field->getType()) {
-                case Field::TYPE_STRING:
-                case Field::TYPE_TEXT:
-                    $data[$filter] = Filter::apply(Filter::RULE_LIKE, $term);
-                    break;
-                default:
-                    $data[$filter] = $term;
-            }
+            $data[$filter] = $this->applyFilter($fields[$filter], $term);
         }
 
         return $data;
+    }
+
+    /**
+     * @param Field $field
+     * @param mixed $term
+     * @return string
+     */
+    private function applyFilter(Field $field, $term)
+    {
+        switch ($field->getType()) {
+            case Field::TYPE_STRING:
+            case Field::TYPE_TEXT:
+                return Filter::apply(Filter::RULE_LIKE, $term);
+                break;
+            default:
+        }
+        return $term;
     }
 }
