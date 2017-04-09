@@ -6,6 +6,7 @@ use Simples\Data\Record;
 use Simples\Http\Controller;
 use Simples\Http\Response;
 use Simples\Kernel\App;
+use Simples\Kernel\Wrapper;
 use Simples\Model\Repository\ModelRepository;
 use Simples\Persistence\Field;
 use Simples\Persistence\Filter;
@@ -185,9 +186,12 @@ abstract class ApiController extends Controller
         if (!isset($peaces[1])) {
             return [];
         }
+        $term = $peaces[0];
+        if (!$term) {
+            return [];
+        }
         $fields = $this->repository->getFields();
         $data = [];
-        $term = $peaces[0];
         $filters = explode('+', $peaces[1]);
         foreach ($filters as $filter) {
             if (!isset($fields[$filter])) {
