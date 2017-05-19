@@ -6,7 +6,6 @@ use Simples\Data\Record;
 use Simples\Http\Controller;
 use Simples\Http\Response;
 use Simples\Kernel\App;
-use Simples\Kernel\Wrapper;
 use Simples\Model\Repository\ModelRepository;
 use Simples\Persistence\Field;
 use Simples\Persistence\Filter;
