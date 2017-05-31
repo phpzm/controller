@@ -20,7 +20,7 @@ class ViewController extends Controller
      */
     public function view(string $template, array $data = []): Response
     {
-        $view = new View(path(true, App::config('app')->views['root']));
+        $view = new View(resources('view'));
         $html = $view->render($template, $data);
         return $this->answer($html);
     }
