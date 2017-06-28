@@ -55,9 +55,10 @@ abstract class ApiController extends Controller
      * @get order
      * @get fast
      * @get trash
+     * @param array filters
      * @return Response
      */
-    public function search()
+    public function search($filter = [])
     {
         $this->setLog($this->request()->get('log'));
 
@@ -69,7 +70,6 @@ abstract class ApiController extends Controller
         if ($order && !is_array($order)) {
             $order = explode(',', $order);
         }
-        $filter = [];
 
         $data = $this->getData();
         if (count($data)) {
