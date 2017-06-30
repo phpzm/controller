@@ -55,10 +55,10 @@ abstract class ApiController extends Controller
      * @get order
      * @get fast
      * @get trash
-     * @param array filters
+     * @param array filter
      * @return Response
      */
-    public function search($filter = [])
+    public function search(array $filter = [])
     {
         $this->setLog($this->request()->get('log'));
 
