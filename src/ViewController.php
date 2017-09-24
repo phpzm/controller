@@ -2,7 +2,6 @@
 
 namespace Simples\Controller;
 
-use Simples\Kernel\App;
 use Simples\Http\Controller;
 use Simples\Http\Response;
 use Simples\Template\View;
@@ -26,7 +25,7 @@ class ViewController extends Controller
     }
 
     /**
-     * @param null $content
+     * @param mixed $content (null)
      * @param array $meta
      * @param int $code
      * @return Response
@@ -34,6 +33,6 @@ class ViewController extends Controller
      */
     protected function answer($content = null, $meta = [], $code = 200): Response
     {
-        return $this->response()->html($content);
+        return $this->response()->html($content)->withStatus($code);
     }
 }

@@ -3,6 +3,7 @@
 namespace Simples\Controller;
 
 use Simples\Data\Record;
+use Simples\Helper\Date;
 use Simples\Http\Controller;
 use Simples\Http\Response;
 use Simples\Kernel\App;
@@ -22,7 +23,7 @@ abstract class ApiController extends Controller
     protected $repository;
 
     /**
-     * @param null $content
+     * @param mixed $content (null)
      * @param array $meta
      * @param int $code
      * @return Response
@@ -78,7 +79,7 @@ abstract class ApiController extends Controller
 
         $fast = $this->fast($this->request()->get('fast'));
         if (count($fast)) {
-            $filter[] = Filter::generate($fast, __OR__);
+            $filter['filter'] = Filter::generate($fast, __OR__);
         }
         $trash = !!$this->request()->get('trash');
 
@@ -213,8 +214,9 @@ abstract class ApiController extends Controller
             case Field::TYPE_STRING:
             case Field::TYPE_TEXT:
                 return Filter::apply(Filter::RULE_LIKE, $term);
-                break;
-            default:
+            case Field::TYPE_DATE:
+            case Field::TYPE_DATETIME:
+                return Date::normalize($term);
         }
         return $term;
     }
