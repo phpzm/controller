@@ -180,7 +180,7 @@ abstract class ApiController extends Controller
      * @param $string
      * @return array
      */
-    private function fast($string): array
+    protected function fast($string): array
     {
         $peaces = explode(App::options('filter'), $string);
         if (!isset($peaces[1])) {
@@ -208,7 +208,7 @@ abstract class ApiController extends Controller
      * @param mixed $term
      * @return string
      */
-    private function applyFilter(Field $field, $term)
+    protected function applyFilter(Field $field, $term)
     {
         switch ($field->getType()) {
             case Field::TYPE_STRING:
