@@ -79,7 +79,7 @@ abstract class ApiController extends Controller
 
         $fast = $this->fast($this->request()->get('fast'));
         if (count($fast)) {
-            $filter['filter'] = Filter::generate($fast, __OR__);
+            $filter['__filter__'] = Filter::generate($fast, __OR__);
         }
         $trash = !!$this->request()->get('trash');
 
@@ -156,6 +156,32 @@ abstract class ApiController extends Controller
         $recycled = $this->repository->recycle(Record::make($data));
 
         return $this->answerOK($recycled->all());
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     */
+    public function next($id): Response
+    {
+        $this->setLog($this->request()->get('log'));
+
+        $search = $this->getData();
+
+        return $this->answerOK($this->repository->next($id, $search)->all());
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     */
+    public function previous($id): Response
+    {
+        $this->setLog($this->request()->get('log'));
+
+        $search = $this->getData();
+
+        return $this->answerOK($this->repository->previous($id, $search)->all());
     }
 
     /**
