@@ -10,7 +10,7 @@
   ],
   "homepage": "https://github.com/phpzm/controller",
   "license": "MIT",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "type": "package",
   "authors": [
     {
@@ -24,10 +24,10 @@
   ],
   "require": {
     "php": ">=7.0",
-    "phpzm/data": "^1.10.0",
-    "phpzm/http": "^1.7.10",
-    "phpzm/model": "^1.14.0",
-    "phpzm/template": "^1.5.6"
+    "phpzm/data": "^1.10.1",
+    "phpzm/http": "^1.7.11",
+    "phpzm/model": "^1.14.1",
+    "phpzm/template": "^1.5.7"
   },
   "autoload": {
     "psr-4": {
