@@ -10,6 +10,7 @@ use Simples\Kernel\App;
 use Simples\Model\Repository\ModelRepository;
 use Simples\Persistence\Field;
 use Simples\Persistence\Filter;
+use function array_merge;
 
 /**
  * Class ApiController
@@ -72,19 +73,16 @@ abstract class ApiController extends Controller
             $order = explode(',', $order);
         }
 
-        $data = $this->getData();
-        if (count($data)) {
-            $filter[] = Filter::generate($data);
-        }
+        $filters = array_merge($this->getData(), $filter);
 
         $fast = $this->fast($this->request()->get('fast'));
         if (count($fast)) {
-            $filter['__filter__'] = Filter::generate($fast, __OR__);
+            $filters['__filter__'] = [Filter::generate($fast, __OR__)];
         }
         $trash = !!$this->request()->get('trash');
 
-        $collection = $this->repository->search($filter, $order, $start, $end, $trash);
-        $meta = ['total' => $this->repository->count($filter)];
+        $collection = $this->repository->search($filters, $order, $start, $end, $trash);
+        $meta = ['total' => $this->repository->count($filters)];
 
         return $this->answerOK($collection->getRecords(), $meta);
     }
