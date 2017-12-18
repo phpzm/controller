@@ -3,6 +3,7 @@
 namespace Simples\Controller;
 
 use Simples\Data\Record;
+use Simples\Error\SimplesRunTimeError;
 use Simples\Helper\Date;
 use Simples\Http\Controller;
 use Simples\Http\Response;
@@ -59,6 +60,7 @@ abstract class ApiController extends Controller
      * @get trash
      * @param array filter
      * @return Response
+     * @throws SimplesRunTimeError
      */
     public function search(array $filter = [])
     {
