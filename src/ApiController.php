@@ -2,6 +2,7 @@
 
 namespace Simples\Controller;
 
+use Simples\Data\Error\SimplesValidationError;
 use Simples\Data\Record;
 use Simples\Error\SimplesRunTimeError;
 use Simples\Helper\Date;
@@ -39,6 +40,8 @@ abstract class ApiController extends Controller
 
     /**
      * @return Response
+     * @throws SimplesRunTimeError
+     * @throws SimplesValidationError
      */
     public function post(): Response
     {
@@ -92,6 +95,7 @@ abstract class ApiController extends Controller
     /**
      * @param $id
      * @return Response
+     * @throws SimplesRunTimeError
      */
     public function get($id): Response
     {
@@ -111,6 +115,8 @@ abstract class ApiController extends Controller
     /**
      * @param $id
      * @return Response
+     * @throws SimplesRunTimeError
+     * @throws SimplesValidationError
      */
     public function put($id): Response
     {
@@ -127,6 +133,7 @@ abstract class ApiController extends Controller
     /**
      * @param $id
      * @return Response
+     * @throws SimplesRunTimeError
      */
     public function delete($id): Response
     {
@@ -144,6 +151,7 @@ abstract class ApiController extends Controller
     /**
      * @param $id
      * @return Response
+     * @throws SimplesRunTimeError
      */
     public function recycle($id): Response
     {
