@@ -30,7 +30,7 @@ abstract class QueryController extends Controller
      * @param string $key
      * @return string
      */
-    protected function notDestroyed(string $source, string $key = '_destroyed_at')
+    protected function notDestroyed(string $source, string $key = '_destroyed_at'): string
     {
         return "({$this->queryBuilder->getDriver()::blank("`{$source}`.`{$key}`")})";
     }
@@ -43,7 +43,7 @@ abstract class QueryController extends Controller
      * @param string $group
      * @return string
      */
-    protected function subQuery($alias, $source, $field, $where = null, $group = null)
+    protected function subQuery($alias, $source, $field, $where = null, $group = null): string
     {
         $pieces = [];
         $pieces[] = "(";
